@@ -56,7 +56,7 @@ embeddings = HuggingFaceBgeEmbeddings(
 prompt = PromptTemplate(template=prompt_template,
                         input_variables=['context', 'question'])
 load_vector_store = Chroma(
-    persist_directory="stores/pet_cosine", embedding_function=embeddings)
+    persist_directory="stores/ConserGPT", embedding_function=embeddings)
 retriever = load_vector_store.as_retriever(search_kwargs={"k": 1})
 # query = "what is the fastest speed for a greyhound dog?"
 # semantic_search = retriever.get_relevant_documents(query)
