@@ -106,8 +106,7 @@ iface = gr.Interface(fn=get_response,
                      title="ConserGPT",
                      description="This is a RAG implementation based on Zephyr 7B Alpha LLM.",
                      examples=sample_prompts,
-                     allow_flagging=False,
-                     share=True
+                     allow_flagging=False
                      )
 
 iface.launch()
