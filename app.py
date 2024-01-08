@@ -1,12 +1,9 @@
-from langchain import PromptTemplate, LLMChain
+from langchain.prompts import PromptTemplate
 from langchain.llms import CTransformers
 import os
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.embeddings import HuggingFaceBgeEmbeddings
-from io import BytesIO
-from langchain.document_loaders import PyPDFLoader
 import gradio as gr
 
 
@@ -58,26 +55,11 @@ prompt = PromptTemplate(template=prompt_template,
 load_vector_store = Chroma(
     persist_directory="stores/ConserGPT", embedding_function=embeddings)
 retriever = load_vector_store.as_retriever(search_kwargs={"k": 1})
-# query = "what is the fastest speed for a greyhound dog?"
-# semantic_search = retriever.get_relevant_documents(query)
-# print(semantic_search)
 
 print("######################################################################")
 
 chain_type_kwargs = {"prompt": prompt}
 
-# qa = RetrievalQA.from_chain_type(
-#     llm=llm,
-#     chain_type="stuff",
-#     retriever=retriever,
-#     return_source_documents = True,
-#     chain_type_kwargs= chain_type_kwargs,
-#     verbose=True
-# )
-
-# response = qa(query)
-
-# print(response)
 
 sample_prompts = ["En caso de empate entre el alumnado de alguna especialidad de la enseñanza profesionales de música, ¿Qué criterios se aplicarían para dar el premio?",
                   "¿Qué requisitos debe reunir un alumno candidato al premio extraordinario de enseñanzas profesionales de música?", "¿Cuál es la fecha de publicación en el BOE de la Orden ECD/1611/2015, del 29 de julio, del Ministerio de Educación, Cultura y Deporte?"]
@@ -106,7 +88,7 @@ iface = gr.Interface(fn=get_response,
                      title="ConserGPT",
                      description="This is a RAG implementation based on Zephyr 7B Alpha LLM.",
                      examples=sample_prompts,
-                     allow_flagging=False
+                     allow_flagging='never'
                      )
 
-iface.launch()
+iface.launch(share=True)
