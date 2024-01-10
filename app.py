@@ -1,10 +1,15 @@
-from langchain.prompts import PromptTemplate
-from langchain.llms import CTransformers
 import os
+import gradio as gr
+
+from langchain.llms import CTransformers
+from langchain.prompts import PromptTemplate
+
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.embeddings import HuggingFaceBgeEmbeddings
-import gradio as gr
+
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.document_loaders import PyPDFLoader
 
 
 local_llm = "zephyr-7b-alpha.Q5_K_S.gguf"
@@ -12,7 +17,7 @@ local_llm = "zephyr-7b-alpha.Q5_K_S.gguf"
 config = {
     'max_new_tokens': 1024,
     'repetition_penalty': 1.1,
-    'temperature': 0.1,
+    'temperature': 0,
     'top_k': 50,
     'top_p': 0.9,
     'stream': True,
@@ -21,7 +26,7 @@ config = {
 
 llm = CTransformers(
     model=local_llm,
-    model_type="mistral",
+    model_type="zephyr",
     lib="avx2",  # for CPU use
     **config
 )
@@ -36,7 +41,8 @@ Contexto: {context}
 Pregunta: {question}
 
 Devuelve sólo la respuesta útil que aparece a continuación y nada más.
-Responde siempre en castellano
+Responde solo y exclusivamente con la información que se te ha sido proporcionada.
+Responde siempre en castellano.
 Respuesta útil:
 """
 
@@ -49,11 +55,23 @@ embeddings = HuggingFaceBgeEmbeddings(
     encode_kwargs=encode_kwargs
 )
 
+# loader = PyPDFLoader(
+#     "./Instruccion26septiembre2023PremiosExtraordinariosMusica.pdf")
+# documents = loader.load()
+# text_splitter = RecursiveCharacterTextSplitter(
+#     chunk_size=1000, chunk_overlap=100)
+# texts = text_splitter.split_documents(documents)
+
+# vector_store = Chroma.from_documents(texts, embeddings, collection_metadata={
+#                                      "hnsw:space": "cosine"}, persist_directory="stores/ConserGPT")
+
+# print("Vector Store Created.......")
+
 
 prompt = PromptTemplate(template=prompt_template,
                         input_variables=['context', 'question'])
 load_vector_store = Chroma(
-    persist_directory="stores/ConserGPT", embedding_function=embeddings)
+    persist_directory="stores/ConserGPT/", embedding_function=embeddings)
 retriever = load_vector_store.as_retriever(search_kwargs={"k": 1})
 
 print("######################################################################")
